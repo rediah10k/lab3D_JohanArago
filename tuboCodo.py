@@ -1,3 +1,15 @@
 import cadquery as cq
-result = cq.Workplane("XY" ).box(3, 3, 0.5).edges("|Z").fillet(0.125)
-show_object(result)
+
+# Parámetros del tubo de llegada
+radio_exterior = 15  
+altura = 40 
+espesor_pared = 2 
+extension_espesor = 3
+
+
+cilindro_hueco = (
+    cq.Workplane("XY")
+    .circle(radio_exterior)
+    .circle(radio_exterior - espesor_pared)
+    .extrude(altura)
+)
