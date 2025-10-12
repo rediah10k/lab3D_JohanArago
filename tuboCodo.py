@@ -1,17 +1,13 @@
 import cadquery as cq
 
-# Parámetros arbitrarios
-radio_exterior = 15    # radio exterior del cilindro hueco
-espesor_pared = 2      # grosor de la pared del cilindro
-altura = 40            # altura del cilindro hueco
-
-# Parámetros del anillo de extensión
-extension_espesor = 8      # altura del anillo exterior
-radio_anillo_ext = 20      # radio exterior del anillo de extensión (mayor al radio_exterior)
-# Radio interior siempre es radio_exterior - espesor_pared
+radio_exterior = 15
+espesor_pared = 2
+altura = 40
+extension_espesor = 8
+radio_anillo_ext = 20
 radio_interior = radio_exterior - espesor_pared
 
-# Cilindro hueco
+# Base: cilindro hueco con anillo
 cilindro_hueco = (
     cq.Workplane("XY")
     .circle(radio_exterior)
@@ -19,7 +15,6 @@ cilindro_hueco = (
     .extrude(altura)
 )
 
-# Anillo de extensión
 anillo_extension = (
     cq.Workplane("XY")
     .circle(radio_anillo_ext)
@@ -28,7 +23,29 @@ anillo_extension = (
     .translate((0, 0, altura))
 )
 
-# Unir ambas piezas
-pieza_final = cilindro_hueco.union(anillo_extension)
+# Tapa superior
+tapa = (
+    cq.Workplane("XY")
+    .workplane(offset=altura + extension_espesor)
+    .circle(radio_anillo_ext)
+    .circle(radio_interior)
+    .extrude(2)
+)
 
-show_object(pieza_final)  # Solo necesario en CQ-editor o Jupyter
+
+altura_almenas = 8
+ancho_almena = 6
+num_almenas = 10
+
+#Muescas de la torre con sus parametros
+almenas = (
+    cq.Workplane("XY")
+    .workplane(offset=altura + extension_espesor + 2)  # encima de la tapa
+    .polarArray(radio_anillo_ext - ancho_almena/2, 0, 360, num_almenas)
+    .rect(ancho_almena, espesor_pared * 2)
+    .extrude(altura_almenas)
+)
+
+pieza_final = cilindro_hueco.union(anillo_extension).union(tapa).union(almenas)
+
+show_object(pieza_final)
